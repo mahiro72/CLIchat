@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+  front:
+    container_name: front-next
+    build: ./docker/frontend
+    tty: true
+    volumes:
+      - ./frontend/:/usr/src/app 
+    depends_on:
+      - database
+    command: sh -c "yarn dev"
+    ports:
+      - "3000:3000"
+
+  backend:
+    container_name: backend-gin
+    build: ./docker/backend
+    env_file: docker-compose.env
+    tty: true
+    volumes:
+      - ./backend/:/go/src
+    ports:
+      - "8080:8080"
+
+  database:
+    container_name: database-mysql
+    build: ./docker/database
+    env_file: docker-compose.env
+    tty: true
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+    - ./database/data:/var/lib/mysql
+    - ./database/my.cnf:/etc/mysql/conf.d/my.cnf
+    # - ./database/sql:/docker-entrypoint-initdb.d
+    ports:
+    - 3306:3306
